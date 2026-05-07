@@ -1,200 +1,365 @@
 const translations = {
   en: {
-    // General
     appTitle: "Pain Questionnaire",
-    appDesc: "This tool helps you describe your pain visually.",
+    appDesc: "Visually describe your pain to help your interpreter communicate with the doctor more accurately.",
     start: "Start",
     next: "Next →",
     back: "← Back",
-    seeSummary: "See Summary →",
-    startAgain: "🔄 Start Again",
+    seeSummary: "View Summary →",
+    startAgain: "Start Again",
+
+    // BodySelector
+    selectBodyPart: "Where does it hurt?",
+    tapBodyPart: "Tap the area that is painful",
+    layerFull: "Full", layerBone: "Bone", layerMuscle: "Muscle", layerNerve: "Nerve",
+    comingSoon: "Coming soon — only head available now",
+    tapHead: "Tap the head area",
 
     // HeadSelector
-    whereDoesItHurt: "Where does it hurt?",
-    selectArea: "Tap the area on the head",
+    whereDoesItHurt: "Which part of the head?",
+    selectArea: "Tap the painful area on the diagram",
     selected: "Selected",
     tapToSelect: "Tap a region to select",
 
-    // Regions
-    forehead: "Forehead",
-    left_temple: "Left Temple",
-    right_temple: "Right Temple",
-    top_of_head: "Top of Head",
-    back_of_head: "Back of Head",
-    around_eyes: "Around Eyes",
+    // Head regions
+    top: "Crown", forehead: "Forehead",
+    leftTemple: "Left Temple", rightTemple: "Right Temple",
+    leftEye: "Left Eye Area", rightEye: "Right Eye Area",
+    leftCheek: "Left Cheek", rightCheek: "Right Cheek",
+    leftSide: "Left Side", rightSide: "Right Side",
 
     // PainTypeSelector
-    whatKindOfPain: "What kind of pain is it?",
-    selectType: "Select the type that feels closest",
-    tapPainType: "Tap a pain type to select",
-
-    // Pain types
-    throbbing: "Throbbing",
-    stabbing: "Stabbing",
-    pressure: "Pressure",
-    burning: "Burning",
-    electric: "Electric",
-    hollow: "Hollow",
-
-    // Pain type descriptions
-    throbbing_desc: "Pulsing, beating pain",
-    stabbing_desc: "Sharp, sudden pain",
-    pressure_desc: "Squeezing, heavy feeling",
-    burning_desc: "Hot, stinging sensation",
-    electric_desc: "Shooting, tingling pain",
-    hollow_desc: "Empty, dull ache",
+    whatKindOfPain: "What type of pain?",
+    selectType: "Select the type closest to what you feel",
+    tapPainType: "Tap a pain type",
+    throbbing: "Throbbing", stabbing: "Stabbing",
+    pressure: "Pressure", burning: "Burning",
+    electric: "Electric", hollow: "Dull Ache",
+    throbbing_desc: "Pulsing, beating",
+    stabbing_desc: "Sharp, sudden",
+    pressure_desc: "Squeezing, heavy",
+    burning_desc: "Hot, stinging",
+    electric_desc: "Shooting, tingling",
+    hollow_desc: "Dull, heavy ache",
 
     // IntensitySlider
     howIntense: "How intense is the pain?",
     dragSlider: "Drag the slider to rate your pain",
-    noPain: "1 — No pain",
-    worstPain: "10 — Worst pain",
-    mild: "Mild",
-    moderate: "Moderate",
-    severe: "Severe",
-    verySevere: "Very Severe",
+    noPain: "No pain", worstPain: "Worst pain",
+    mild: "Mild", moderate: "Moderate", severe: "Severe", verySevere: "Very Severe",
+
+    // PainTimeSelector
+    whenDidItStart: "When did the pain start?",
+    howHasItChanged: "How has it changed over time?",
+    selectOnset: "Select the closest option",
+    selectTrend: "Select the closest option",
+    onset_today: "Today",
+    onset_1to3days: "1–3 days ago",
+    onset_1week: "About 1 week ago",
+    onset_2to3weeks: "2–3 weeks ago",
+    onset_1month: "1+ month ago",
+    trend_worse: "Getting worse",
+    trend_same: "About the same",
+    trend_fluctuating: "Up and down",
+    trend_betterThenWorse: "Improved, then got worse",
+    painOnset: "Pain onset",
+    painTrend: "How it changed",
+
+    // PainHistorySelector
+    howWasItThen: "What was it like at the start?",
+    pastIntensityLabel: "Intensity at the start",
+    pastStateLabel: "Then",
+    nowStateLabel: "Now",
+    painChangedTitle: "How the pain changed",
 
     // SummaryCard
     painSummary: "Pain Summary",
-    reviewShare: "Review and share with your interpreter",
-    painLocation: "📍 Pain Location",
+    reviewShare: "Review with your interpreter",
+    painLocation: "Pain Location",
     painType: "Pain Type",
-    intensity: "🔢 Intensity",
-    suggestedPhrase: "💬 Suggested phrase for interpreter",
-    summaryPhrase: (location, type, intensity, label) =>
-      `The patient has ${label.toLowerCase()} ${type} pain in the ${location}, rated ${intensity} out of 10.`,
+    intensity: "Intensity",
+    expressionTitle: "How to describe it",
+    medicalTerm: "Medical term",
+    koreanExpr: "Expression to use",
+    shareBtn: "Complete",
+    editBtn: "Edit",
+    disclaimer: "This is not a medical diagnosis. For interpreter reference only.",
+
+    anotherAreaQ: "Another area hurting too?",
+    addAnotherArea: "+ Add another area",
+    doneAddingAreas: "See Summary →",
+    savePromptTitle: "Save this record?",
+    savePromptDesc: "Saved to this device — viewable from the start screen next visit.",
+    saveConfirm: "Save",
+    discardBtn: "Don't save",
+    pastRecords: "Past records",
+    noRecords: "No saved records",
+    entryLabel: "Pain area",
+
+    medicalExpressions: {
+      throbbing: {
+        medical: "Pulsating / Throbbing headache",
+        phrase: (loc) => `The ${loc} throbs like a heartbeat and gets worse with each pulse.`,
+      },
+      stabbing: {
+        medical: "Stabbing / Lancinating pain",
+        phrase: (loc) => `There is a sudden, sharp stabbing sensation in the ${loc}.`,
+      },
+      pressure: {
+        medical: "Tension-type headache",
+        phrase: (loc) => `The ${loc} feels like it is being squeezed or pressed down heavily.`,
+      },
+      burning: {
+        medical: "Burning pain (Causalgia)",
+        phrase: (loc) => `The ${loc} feels hot and burning, like a stinging sensation.`,
+      },
+      electric: {
+        medical: "Neuropathic pain",
+        phrase: (loc) => `There is an electric, shooting, tingling feeling in the ${loc}.`,
+      },
+      hollow: {
+        medical: "Dull aching pain",
+        phrase: (loc) => `The ${loc} has a constant, heavy, dull ache.`,
+      },
+    },
   },
 
   ko: {
-    // General
     appTitle: "통증 문진표",
-    appDesc: "이 도구는 통증을 시각적으로 표현하는 데 도움을 줍니다.",
-    start: "시작",
+    appDesc: "통증을 시각적으로 표현해서 통역사가 의사에게 더 정확하게 전달할 수 있도록 도와줍니다.",
+    start: "시작하기",
     next: "다음 →",
     back: "← 뒤로",
     seeSummary: "요약 보기 →",
-    startAgain: "🔄 다시 시작",
+    startAgain: "다시 시작",
 
-    // HeadSelector
-    whereDoesItHurt: "어디가 아프신가요?",
+    selectBodyPart: "어디가 아프신가요?",
+    tapBodyPart: "아픈 부위를 눌러주세요",
+    layerFull: "전신", layerBone: "뼈", layerMuscle: "근육", layerNerve: "신경",
+    comingSoon: "준비 중 — 현재 머리 부위만 이용 가능합니다",
+    tapHead: "머리 부위를 눌러보세요",
+
+    whereDoesItHurt: "머리 어느 부위가 아픈가요?",
     selectArea: "아픈 부위를 눌러주세요",
     selected: "선택됨",
     tapToSelect: "부위를 눌러 선택하세요",
 
-    // Regions
-    forehead: "이마",
-    left_temple: "왼쪽 관자놀이",
-    right_temple: "오른쪽 관자놀이",
-    top_of_head: "정수리",
-    back_of_head: "뒤통수",
-    around_eyes: "눈 주변",
+    top: "정수리", forehead: "이마",
+    leftTemple: "왼쪽 관자놀이", rightTemple: "오른쪽 관자놀이",
+    leftEye: "왼쪽 눈 주변", rightEye: "오른쪽 눈 주변",
+    leftCheek: "왼쪽 볼", rightCheek: "오른쪽 볼",
+    leftSide: "왼쪽 측면", rightSide: "오른쪽 측면",
 
-    // PainTypeSelector
     whatKindOfPain: "어떤 종류의 통증인가요?",
-    selectType: "가장 비슷한 통증 유형을 선택하세요",
-    tapPainType: "통증 유형을 눌러 선택하세요",
-
-    // Pain types
-    throbbing: "욱신거림",
-    stabbing: "찌르는 듯한 통증",
-    pressure: "압박감",
-    burning: "타는 듯한 통증",
-    electric: "전기 오는 듯한 통증",
-    hollow: "둔한 통증",
-
-    // Pain type descriptions
-    throbbing_desc: "두근거리고 욱신거리는 느낌",
-    stabbing_desc: "날카롭고 갑작스러운 통증",
-    pressure_desc: "짓누르는 듯한 무거운 느낌",
+    selectType: "느끼는 통증과 가장 비슷한 유형을 선택하세요",
+    tapPainType: "통증 유형을 눌러주세요",
+    throbbing: "욱신거림", stabbing: "찌르는 통증",
+    pressure: "압박감", burning: "화끈거림",
+    electric: "찌릿찌릿", hollow: "둔한 통증",
+    throbbing_desc: "심장처럼 두근두근",
+    stabbing_desc: "날카롭게 찌르는 느낌",
+    pressure_desc: "짓누르는 무거운 느낌",
     burning_desc: "뜨겁고 따가운 느낌",
-    electric_desc: "전기가 오는 듯한 통증",
-    hollow_desc: "텅 빈 듯한 둔한 통증",
+    electric_desc: "전기 오는 듯한 느낌",
+    hollow_desc: "뻐근하고 둔한 느낌",
 
-    // IntensitySlider
     howIntense: "통증이 얼마나 심한가요?",
-    dragSlider: "슬라이더를 움직여 통증 강도를 선택하세요",
-    noPain: "1 — 통증 없음",
-    worstPain: "10 — 극심한 통증",
-    mild: "약함",
-    moderate: "보통",
-    severe: "심함",
-    verySevere: "매우 심함",
+    dragSlider: "슬라이더를 움직여 강도를 선택하세요",
+    noPain: "통증 없음", worstPain: "극심한 통증",
+    mild: "약함", moderate: "보통", severe: "심함", verySevere: "매우 심함",
 
-    // SummaryCard
+    // PainTimeSelector
+    whenDidItStart: "언제부터 아팠나요?",
+    howHasItChanged: "시간이 지나면서 어떻게 됐나요?",
+    selectOnset: "가장 가까운 것을 선택하세요",
+    selectTrend: "가장 가까운 것을 선택하세요",
+    onset_today: "오늘",
+    onset_1to3days: "1~3일 전",
+    onset_1week: "약 1주일 전",
+    onset_2to3weeks: "2~3주 전",
+    onset_1month: "1달 이상 전",
+    trend_worse: "점점 심해짐",
+    trend_same: "변화 없음",
+    trend_fluctuating: "들쑥날쑥",
+    trend_betterThenWorse: "좋아졌다 다시 심해짐",
+    painOnset: "통증 시작",
+    painTrend: "변화 양상",
+
+    // PainHistorySelector
+    howWasItThen: "처음 아팠을 때는 어떤 통증이었나요?",
+    pastIntensityLabel: "그때의 통증 강도",
+    pastStateLabel: "처음",
+    nowStateLabel: "지금",
+    painChangedTitle: "통증의 변화",
+
     painSummary: "통증 요약",
     reviewShare: "통역사와 함께 확인하세요",
-    painLocation: "📍 통증 부위",
+    painLocation: "아픈 부위",
     painType: "통증 유형",
-    intensity: "🔢 강도",
-    suggestedPhrase: "💬 통역사를 위한 표현",
-    summaryPhrase: (location, type, intensity, label) =>
-      `환자는 ${location}에 ${type} 통증이 있으며, 강도는 10점 만점에 ${intensity}점 (${label})입니다.`,
+    intensity: "통증 강도",
+    expressionTitle: "이렇게 표현해 보세요",
+    medicalTerm: "의학 용어",
+    koreanExpr: "한국어 표현",
+    shareBtn: "완료",
+    editBtn: "수정",
+    disclaimer: "이 내용은 진단이 아닙니다. 통역 참고용입니다.",
+
+    anotherAreaQ: "다른 부위도 아프신가요?",
+    addAnotherArea: "+ 다른 부위 추가하기",
+    doneAddingAreas: "요약 보기 →",
+    savePromptTitle: "기록을 저장하시겠습니까?",
+    savePromptDesc: "이 기기에 저장되며, 다음 방문 시 시작 화면에서 확인할 수 있습니다.",
+    saveConfirm: "저장하기",
+    discardBtn: "저장 안 함",
+    pastRecords: "이전 기록",
+    noRecords: "저장된 기록이 없습니다",
+    entryLabel: "통증 부위",
+
+    medicalExpressions: {
+      throbbing: {
+        medical: "박동성 두통 (搏動性頭痛)",
+        phrase: (loc) => `${loc}이(가) 심장 박동처럼 욱신욱신 뛰어요. 맥박이 느껴질 때마다 더 심해지는 것 같아요.`,
+      },
+      stabbing: {
+        medical: "자통 (刺痛)",
+        phrase: (loc) => `${loc}에 갑자기 날카롭게 찌르는 느낌이 와요.`,
+      },
+      pressure: {
+        medical: "긴장성 두통",
+        phrase: (loc) => `${loc}이(가) 눌리는 것처럼 조이고 짓누르는 느낌이에요.`,
+      },
+      burning: {
+        medical: "작열통 (灼熱痛)",
+        phrase: (loc) => `${loc}이(가) 화끈화끈 타는 것처럼 뜨겁고 따가워요.`,
+      },
+      electric: {
+        medical: "신경통 (神經痛)",
+        phrase: (loc) => `${loc}에서 전기가 오는 것처럼 찌릿찌릿한 느낌이 퍼져요.`,
+      },
+      hollow: {
+        medical: "둔통 (鈍痛)",
+        phrase: (loc) => `${loc}이(가) 뻐근하고 무거운 느낌으로 계속 아파요.`,
+      },
+    },
   },
 
   ms: {
-    // General
     appTitle: "Borang Kesakitan",
-    appDesc: "Alat ini membantu anda menerangkan kesakitan secara visual.",
-    start: "Mula",
+    appDesc: "Huraikan kesakitan anda secara visual supaya jurubahasa boleh menyampaikannya dengan lebih tepat kepada doktor.",
+    start: "Mulakan",
     next: "Seterusnya →",
     back: "← Kembali",
     seeSummary: "Lihat Ringkasan →",
-    startAgain: "🔄 Mulakan Semula",
+    startAgain: "Mulakan Semula",
 
-    // HeadSelector
-    whereDoesItHurt: "Di mana yang sakit?",
-    selectArea: "Ketik kawasan pada kepala",
+    selectBodyPart: "Di mana yang sakit?",
+    tapBodyPart: "Ketik bahagian yang sakit",
+    layerFull: "Penuh", layerBone: "Tulang", layerMuscle: "Otot", layerNerve: "Saraf",
+    comingSoon: "Akan datang — hanya bahagian kepala tersedia",
+    tapHead: "Ketik bahagian kepala",
+
+    whereDoesItHurt: "Bahagian kepala mana yang sakit?",
+    selectArea: "Ketik kawasan yang sakit pada gambar",
     selected: "Dipilih",
     tapToSelect: "Ketik kawasan untuk memilih",
 
-    // Regions
-    forehead: "Dahi",
-    left_temple: "Pelipis Kiri",
-    right_temple: "Pelipis Kanan",
-    top_of_head: "Atas Kepala",
-    back_of_head: "Belakang Kepala",
-    around_eyes: "Sekitar Mata",
+    top: "Ubun-ubun", forehead: "Dahi",
+    leftTemple: "Pelipis Kiri", rightTemple: "Pelipis Kanan",
+    leftEye: "Kawasan Mata Kiri", rightEye: "Kawasan Mata Kanan",
+    leftCheek: "Pipi Kiri", rightCheek: "Pipi Kanan",
+    leftSide: "Sisi Kiri", rightSide: "Sisi Kanan",
 
-    // PainTypeSelector
     whatKindOfPain: "Apakah jenis kesakitan?",
     selectType: "Pilih jenis yang paling hampir",
-    tapPainType: "Ketik jenis kesakitan untuk memilih",
+    tapPainType: "Ketik jenis kesakitan",
+    throbbing: "Berdenyut", stabbing: "Menusuk",
+    pressure: "Tekanan", burning: "Terbakar",
+    electric: "Elektrik", hollow: "Tumpul",
+    throbbing_desc: "Berdenyut seperti degupan jantung",
+    stabbing_desc: "Tajam dan tiba-tiba",
+    pressure_desc: "Tertekan dan berat",
+    burning_desc: "Panas dan pedih",
+    electric_desc: "Rasa seperti elektrik",
+    hollow_desc: "Sakit tumpul dan berat",
 
-    // Pain types
-    throbbing: "Berdenyut",
-    stabbing: "Menusuk",
-    pressure: "Tekanan",
-    burning: "Terbakar",
-    electric: "Elektrik",
-    hollow: "Samar",
-
-    // Pain type descriptions
-    throbbing_desc: "Sakit yang berdenyut-denyut",
-    stabbing_desc: "Sakit yang tajam dan tiba-tiba",
-    pressure_desc: "Rasa tertekan dan berat",
-    burning_desc: "Rasa panas dan pedih",
-    electric_desc: "Rasa seperti terkena elektrik",
-    hollow_desc: "Sakit yang samar dan tumpul",
-
-    // IntensitySlider
     howIntense: "Seberapa teruk kesakitan itu?",
-    dragSlider: "Seret gelangsar untuk menilai kesakitan anda",
-    noPanel: "1 — Tiada sakit",
-    worstPain: "10 — Sakit paling teruk",
-    mild: "Ringan",
-    moderate: "Sederhana",
-    severe: "Teruk",
-    verySevere: "Sangat Teruk",
+    dragSlider: "Seret gelangsar untuk menilai",
+    noPain: "Tiada sakit", worstPain: "Paling teruk",
+    mild: "Ringan", moderate: "Sederhana", severe: "Teruk", verySevere: "Sangat Teruk",
 
-    // SummaryCard
+    // PainTimeSelector
+    whenDidItStart: "Bila kesakitan bermula?",
+    howHasItChanged: "Bagaimana ia berubah dari semasa ke semasa?",
+    selectOnset: "Pilih yang paling hampir",
+    selectTrend: "Pilih yang paling hampir",
+    onset_today: "Hari ini",
+    onset_1to3days: "1–3 hari lepas",
+    onset_1week: "Kira-kira 1 minggu lepas",
+    onset_2to3weeks: "2–3 minggu lepas",
+    onset_1month: "Lebih 1 bulan lepas",
+    trend_worse: "Semakin teruk",
+    trend_same: "Tidak berubah",
+    trend_fluctuating: "Naik turun",
+    trend_betterThenWorse: "Baik, kemudian teruk semula",
+    painOnset: "Permulaan sakit",
+    painTrend: "Perubahan",
+
+    // PainHistorySelector
+    howWasItThen: "Bagaimana kesakitan pada awalnya?",
+    pastIntensityLabel: "Intensiti pada awalnya",
+    pastStateLabel: "Dahulu",
+    nowStateLabel: "Sekarang",
+    painChangedTitle: "Perubahan kesakitan",
+
     painSummary: "Ringkasan Kesakitan",
-    reviewShare: "Semak dan kongsi dengan jurubahasa anda",
-    painLocation: "📍 Lokasi Kesakitan",
+    reviewShare: "Semak bersama jurubahasa anda",
+    painLocation: "Lokasi Sakit",
     painType: "Jenis Kesakitan",
-    intensity: "🔢 Intensiti",
-    suggestedPhrase: "💬 Frasa cadangan untuk jurubahasa",
-    summaryPhrase: (location, type, intensity, label) =>
-      `Pesakit mengalami kesakitan ${type} yang ${label.toLowerCase()} di ${location}, dinilai ${intensity} daripada 10.`,
+    intensity: "Intensiti",
+    expressionTitle: "Cara menerangkannya",
+    medicalTerm: "Istilah perubatan",
+    koreanExpr: "Ungkapan untuk digunakan",
+    shareBtn: "Selesai",
+    editBtn: "Edit",
+    disclaimer: "Ini bukan diagnosis perubatan. Untuk rujukan jurubahasa sahaja.",
+
+    anotherAreaQ: "Ada kawasan lain yang sakit?",
+    addAnotherArea: "+ Tambah kawasan lain",
+    doneAddingAreas: "Lihat Ringkasan →",
+    savePromptTitle: "Simpan rekod ini?",
+    savePromptDesc: "Disimpan dalam peranti ini — boleh dilihat dari skrin utama lain kali.",
+    saveConfirm: "Simpan",
+    discardBtn: "Jangan simpan",
+    pastRecords: "Rekod lepas",
+    noRecords: "Tiada rekod tersimpan",
+    entryLabel: "Kawasan kesakitan",
+
+    medicalExpressions: {
+      throbbing: {
+        medical: "Sakit kepala berdenyut",
+        phrase: (loc) => `${loc} berdenyut seperti degupan jantung dan semakin teruk dengan setiap denyutan.`,
+      },
+      stabbing: {
+        medical: "Sakit menusuk",
+        phrase: (loc) => `Ada sensasi menusuk yang tajam dan tiba-tiba di ${loc}.`,
+      },
+      pressure: {
+        medical: "Sakit kepala ketegangan",
+        phrase: (loc) => `${loc} terasa seperti ditekan atau diperas dengan berat.`,
+      },
+      burning: {
+        medical: "Sakit terbakar",
+        phrase: (loc) => `${loc} terasa panas dan terbakar seperti sensasi pedih.`,
+      },
+      electric: {
+        medical: "Sakit neuropatik",
+        phrase: (loc) => `Ada perasaan elektrik, menembak, dan kesemutan di ${loc}.`,
+      },
+      hollow: {
+        medical: "Sakit tumpul",
+        phrase: (loc) => `${loc} mempunyai sakit tumpul yang berat dan berterusan.`,
+      },
+    },
   },
 };
 
