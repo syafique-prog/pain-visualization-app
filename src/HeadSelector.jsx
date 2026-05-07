@@ -14,8 +14,11 @@ const REGIONS = [
   { key: "rightCheek",  label: "Right Cheek",    symmetrical: false },
   { key: "leftSide",    label: "Left Side",      symmetrical: false },
   { key: "rightSide",   label: "Right Side",     symmetrical: false },
+  { key: "backOfHead", label: "Back of Head", symmetrical: true },
 ];
 
+// naming a bit inconsistent — some regions are named after the side of the head, some after the side of the face. Could rename to be more consistent, but would require updating 
+// translations and maybe some UI text. For now just keeping as is since it’s not too confusing and we can clean up later if needed.
 const PATHS = {
   // ── TOP OF HEAD (symmetrical — both light up together) ──
 top_left: {
@@ -30,95 +33,72 @@ top_left: {
   // ── FOREHEAD (symmetrical — both light up together) ──
   forehead_left: {
     regionKey: "forehead",
-    d: "M 100,55 Q 148,44 200,52 Q 215,75 205,95 Q 158,102 105,94 Q 88,75 100,55 Z",
+    d: "M 153,39 Q 166,44 175,54 Q 179,65 179,77 Q 178,80 169,79 Q 159,78 147,81 Q 141,80 136,69 Q 132,60 132,50 Q 141,42 153,39 Z",
   },
   forehead_right: {
     regionKey: "forehead",
-    d: "M 268,55 Q 316,44 368,52 Q 383,75 373,95 Q 326,102 273,94 Q 256,75 268,55 Z",
-  },
-
-  // ── LEFT TEMPLE
-  // Left image: the temple on the LEFT side of the left head (back area)
-  leftTemple_left: {
-    regionKey: "leftTemple",
-    d: "M 58,80 Q 90,68 118,78 Q 128,105 118,130 Q 88,138 56,122 Q 44,102 58,80 Z",
-  },
-  // Right image: the temple on the LEFT side of the right head (back area)
-  leftTemple_right: {
-    regionKey: "leftTemple",
-    d: "M 392,75 Q 408,65 428,72 Q 432,98 425,122 Q 406,130 388,118 Q 378,97 392,75 Z",
+    d: "M 275,39 Q 289,42 296,50 Q 293,65 290,76 Q 287,81 276,80 Q 268,78 262,79 Q 252,80 248,70 Q 252,57 259,46 Q 269,40 275,39 Z",
   },
 
   // ── RIGHT TEMPLE
-  // Left image: the temple on the RIGHT side of the left head (front area)
+  // Left image: the temple on the RIGHT side of the right head (back area)
   rightTemple_left: {
     regionKey: "rightTemple",
-    d: "M 170,78 Q 205,65 235,75 Q 242,100 232,125 Q 205,134 172,122 Q 158,100 170,78 Z",
+    d: "M 126,64 Q 133,73 134,85 Q 132,95 128,100 Q 113,103 104,99 Q 100,91 100,86 Q 108,77 118,70 Q 124,65 126,64 Z",
   },
-  // Right image: the temple on the RIGHT side of the right head (front area)
-  rightTemple_right: {
-    regionKey: "rightTemple",
-    d: "M 222,75 Q 255,63 282,73 Q 288,98 278,122 Q 252,130 220,118 Q 207,97 222,75 Z",
+
+  // ── LEFT TEMPLE
+  // Right image: the temple on the LEFT side of the left head (front area)
+  leftTemple_right: {
+    regionKey: "leftTemple",
+    d: "M 303,65 Q 313,72 321,78 Q 328,84 328,92 Q 324,99 310,101 Q 301,101 295,88 Q 295,75 299,68 Q 303,65 303,65 Z",
   },
 
   // ── LEFT EYE
   leftEye_left: {
-    regionKey: "leftEye",
-    d: "M 158,108 Q 188,98 215,107 Q 220,128 210,145 Q 185,152 158,142 Q 146,126 158,108 Z",
-  },
-  leftEye_right: {
-    regionKey: "leftEye",
-    d: "M 288,105 Q 318,95 345,104 Q 350,125 340,142 Q 315,149 288,139 Q 276,123 288,105 Z",
+    regionKey: "rightEye",
+    d: "M 161,84 Q 169,85 176,93 Q 176,100 172,109 Q 162,115 150,112 Q 144,103 145,91 Q 153,85 161,84 Z",
   },
 
   // ── RIGHT EYE
-  rightEye_left: {
-    regionKey: "rightEye",
-    d: "M 108,108 Q 138,98 160,107 Q 165,128 155,145 Q 130,152 108,142 Q 96,126 108,108 Z",
-  },
-  rightEye_right: {
-    regionKey: "rightEye",
-    d: "M 338,105 Q 362,95 385,104 Q 390,125 382,142 Q 360,149 338,139 Q 326,123 338,105 Z",
+  leftEye_right: {
+    regionKey: "leftEye",
+    d: "M 269,83 Q 278,86 284,92 Q 284,105 277,115 Q 270,116 259,113 Q 254,105 252,97 Q 257,88 266,84 Q 269,83 269,83 Z",
   },
 
   // ── LEFT CHEEK
-  leftCheek_left: {
-    regionKey: "leftCheek",
-    d: "M 148,155 Q 188,142 222,155 Q 228,185 215,210 Q 182,220 148,207 Q 132,182 148,155 Z",
-  },
   leftCheek_right: {
     regionKey: "leftCheek",
-    d: "M 282,150 Q 318,138 350,150 Q 356,180 343,205 Q 312,215 280,202 Q 265,178 282,150 Z",
+    d: "M 302,114 Q 312,115 320,128 Q 322,139 323,152 Q 321,161 312,170 Q 302,169 297,159 Q 292,145 288,133 Q 290,123 297,116 Q 302,114 302,114 Z",
   },
 
   // ── RIGHT CHEEK
   rightCheek_left: {
     regionKey: "rightCheek",
-    d: "M 62,158 Q 100,145 135,157 Q 140,186 128,210 Q 97,220 62,207 Q 46,182 62,158 Z",
-  },
-  rightCheek_right: {
-    regionKey: "rightCheek",
-    d: "M 352,155 Q 382,143 408,155 Q 413,183 402,207 Q 378,217 350,205 Q 336,180 352,155 Z",
+    d: "M 122,114 Q 134,117 141,125 Q 140,137 134,149 Q 131,160 126,170 Q 116,170 108,164 Q 104,154 105,141 Q 109,129 113,119 Q 122,113 130,114 Z",
   },
 
-  // ── LEFT SIDE OF HEAD
-  leftSide_left: {
-    regionKey: "leftSide",
-    d: "M 28,148 Q 58,135 80,150 Q 85,188 75,225 Q 48,235 25,218 Q 12,188 28,148 Z",
-  },
-  leftSide_right: {
-    regionKey: "leftSide",
-    d: "M 410,145 Q 432,135 432,160 L 432,220 Q 420,232 405,220 Q 396,188 410,145 Z",
-  },
-
-  // ── RIGHT SIDE OF HEAD
+  // RIGHT SIDE OF HEAD
   rightSide_left: {
     regionKey: "rightSide",
-    d: "M 192,200 Q 222,188 248,200 Q 252,228 240,252 Q 215,260 190,248 Q 176,226 192,200 Z",
+    d: "M 80,41 Q 100,43 114,49 Q 119,60 111,70 Q 98,77 83,80 Q 72,82 66,94 Q 62,97 51,87 Q 47,70 51,55 Q 61,45 76,41 Q 80,41 80,41 Z",
   },
+
+  //LEFT SIDE OF HEAD
   rightSide_right: {
-    regionKey: "rightSide",
-    d: "M 185,198 Q 215,186 240,198 Q 244,226 232,250 Q 208,258 183,246 Q 170,224 185,198 Z",
+    regionKey: "leftSide",
+    d: "M 349,41 Q 363,44 374,51 Q 380,64 380,81 Q 374,92 368,97 Q 361,91 354,82 Q 341,80 325,76 Q 316,69 310,59 Q 314,50 325,44 Q 338,41 349,41 Z",
+  },
+
+  // ── BACK OF HEAD
+  backOfHead_left: {
+    regionKey: "backOfHead",
+    d: "M 34,105 Q 48,115 57,141 Q 56,162 51,174 Q 42,179 30,170 Q 23,156 20,139 Q 23,120 28,109 Q 34,105 34,105 Z",
+  },
+
+  backOfHead_right: {
+    regionKey: "backOfHead",
+    d: "M 395,106 Q 406,119 407,144 Q 400,166 390,178 Q 383,179 375,175 Q 370,160 371,143 Q 376,125 382,114 Q 393,106 395,106 Z",
   },
 };
 
