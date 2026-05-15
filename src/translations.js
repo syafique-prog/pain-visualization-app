@@ -37,6 +37,16 @@ const translations = {
     leftCheek: "Left Cheek", rightCheek: "Right Cheek",
     leftSide: "Left Side", rightSide: "Right Side",
 
+    // Body regions (3D selector)
+    head: "Head",
+    front_torso: "Front (Chest & Abdomen)",
+    back_torso: "Back",
+    right_hand: "Right Arm / Hand",
+    left_hand: "Left Arm / Hand",
+    hip: "Hip / Pelvis",
+    right_leg: "Right Leg",
+    left_leg: "Left Leg",
+
     // PainTypeSelector
     whatKindOfPain: "What type of pain?",
     selectType: "Select the closest type",
@@ -78,6 +88,10 @@ const translations = {
     shareBtn: "Complete",
     editBtn: "Edit",
     disclaimer: "This is not a medical diagnosis. For interpreter reference only.",
+    sessionNoteLabel: "Additional notes (optional)",
+    sessionNotePlaceholder: "e.g. took medicine this morning, pain worse in the evening…",
+    downloadPdf: "Download Summary PDF",
+    pdfDownloaded: "summary.pdf downloaded",
 
     // PainSetupScreen
     painSetupTitle: "Pain history",
@@ -193,6 +207,16 @@ const translations = {
     leftCheek: "왼쪽 볼", rightCheek: "오른쪽 볼",
     leftSide: "왼쪽 측면", rightSide: "오른쪽 측면",
 
+    // Body regions (3D selector)
+    head: "머리",
+    front_torso: "앞면 (가슴·배)",
+    back_torso: "등",
+    right_hand: "오른팔 / 손",
+    left_hand: "왼팔 / 손",
+    hip: "골반",
+    right_leg: "오른쪽 다리",
+    left_leg: "왼쪽 다리",
+
     // PainTypeSelector
     whatKindOfPain: "어떤 종류의 통증인가요?",
     selectType: "가장 비슷한 유형을 선택하세요",
@@ -234,6 +258,10 @@ const translations = {
     shareBtn: "완료",
     editBtn: "수정",
     disclaimer: "이 내용은 진단이 아닙니다. 통역 참고용입니다.",
+    sessionNoteLabel: "추가 메모 (선택사항)",
+    sessionNotePlaceholder: "예: 오늘 아침 약 복용, 저녁에 더 심해짐…",
+    downloadPdf: "요약 PDF 다운로드",
+    pdfDownloaded: "summary.pdf 다운로드 완료",
 
     // PainSetupScreen
     painSetupTitle: "통증 이력",
@@ -349,6 +377,16 @@ const translations = {
     leftCheek: "Pipi Kiri", rightCheek: "Pipi Kanan",
     leftSide: "Sisi Kiri", rightSide: "Sisi Kanan",
 
+    // Body regions (3D selector)
+    head: "Kepala",
+    front_torso: "Depan (Dada & Perut)",
+    back_torso: "Belakang",
+    right_hand: "Lengan / Tangan Kanan",
+    left_hand: "Lengan / Tangan Kiri",
+    hip: "Pinggul / Pelvis",
+    right_leg: "Kaki Kanan",
+    left_leg: "Kaki Kiri",
+
     // PainTypeSelector
     whatKindOfPain: "Apakah jenis kesakitan?",
     selectType: "Pilih jenis yang paling hampir",
@@ -390,6 +428,10 @@ const translations = {
     shareBtn: "Selesai",
     editBtn: "Edit",
     disclaimer: "Ini bukan diagnosis perubatan. Untuk rujukan jurubahasa sahaja.",
+    sessionNoteLabel: "Nota tambahan (pilihan)",
+    sessionNotePlaceholder: "cth: ambil ubat pagi ini, sakit bertambah teruk malam…",
+    downloadPdf: "Muat Turun PDF Ringkasan",
+    pdfDownloaded: "summary.pdf dimuat turun",
 
     // PainSetupScreen
     painSetupTitle: "Sejarah kesakitan",

@@ -2,7 +2,6 @@ import { useState, useRef, useEffect } from "react";
 import "./App.css";
 import translations from "./translations";
 import BodySelector from "./BodySelector";
-import HeadSelector from "./HeadSelector";
 import { savePainRecord } from "./lib/supabase";
 
 function emptyEntry() {
@@ -679,10 +678,16 @@ function EntryBlock({ entry, index, t, totalEntries, dateLabel }) {
 }
 
 // ─── Summary Card (Step 5) ───────────────────────────────────
-function SummaryCard({ entries, currentEntry, onConsent, onBack, painPattern, timelineEvents, sessionOnset, lang, t }) {
+function SummaryCard({ entries, currentEntry, onConsent, onBack, painPattern, timelineEvents, sessionOnset, lang, t, sessionNote, setSessionNote }) {
+  const [pdfToast, setPdfToast] = useState(false);
   const allEntries = [...entries, currentEntry].filter(e => e.location?.length > 0 && e.painTypes?.length > 0);
   const isTimelineMode = painPattern && painPattern !== "same" && timelineEvents?.length > 0;
   const patternOpt = PATTERN_OPTIONS.find(p => p.key === painPattern);
+
+  const handleDownloadPdf = () => {
+    setPdfToast(true);
+    setTimeout(() => setPdfToast(false), 2500);
+  };
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
@@ -735,18 +740,81 @@ function SummaryCard({ entries, currentEntry, onConsent, onBack, painPattern, ti
             ))
         }
 
+        {/* Note preview — live-updates as user types */}
+        {sessionNote.length > 0 && (
+          <div style={{
+            backgroundColor: "#F5F3FF", borderRadius: "14px",
+            padding: "14px 16px", border: "1.5px solid #DDD6FE",
+            marginBottom: "12px",
+          }}>
+            <div style={{ fontSize: "11px", color: "#7C3AED", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "6px" }}>
+              📝 {t.sessionNoteLabel}
+            </div>
+            <div style={{ fontSize: "14px", color: "#374151", lineHeight: "1.65", whiteSpace: "pre-wrap" }}>
+              {sessionNote}
+            </div>
+          </div>
+        )}
+
+        {/* Note input */}
+        <div style={{ marginBottom: "12px" }}>
+          <div style={{ fontSize: "12px", color: "#9CA3AF", fontWeight: "600", marginBottom: "6px" }}>
+            📝 {t.sessionNoteLabel}
+          </div>
+          <textarea
+            value={sessionNote}
+            onChange={e => setSessionNote(e.target.value)}
+            placeholder={t.sessionNotePlaceholder}
+            rows={3}
+            style={{
+              width: "100%", padding: "12px", fontSize: "14px",
+              borderRadius: "12px", border: "1.5px solid #DDD6FE",
+              resize: "none", outline: "none", boxSizing: "border-box",
+              fontFamily: "inherit", color: "#374151",
+              transition: "border-color 0.2s",
+            }}
+            onFocus={e => e.target.style.borderColor = "#7C3AED"}
+            onBlur={e => e.target.style.borderColor = "#DDD6FE"}
+          />
+        </div>
+
         <button
           onClick={onConsent}
           style={{
             width: "100%", padding: "14px", fontSize: "16px", fontWeight: "600",
             backgroundColor: "#6B21A8", color: "#fff", border: "none",
-            borderRadius: "12px", cursor: "pointer", marginTop: "4px", marginBottom: "24px",
+            borderRadius: "12px", cursor: "pointer", marginBottom: "10px",
             boxShadow: "0 4px 14px rgba(107,33,168,0.35)",
           }}
         >
           {t.shareBtn}
         </button>
+
+        <button
+          onClick={handleDownloadPdf}
+          style={{
+            width: "100%", padding: "13px", fontSize: "14px", fontWeight: "600",
+            backgroundColor: "#fff", color: "#6B21A8",
+            border: "1.5px solid #DDD6FE", borderRadius: "12px",
+            cursor: "pointer", marginBottom: "24px",
+          }}
+        >
+          ⬇ {t.downloadPdf}
+        </button>
       </div>
+
+      {pdfToast && (
+        <div style={{
+          position: "fixed", bottom: "28px", left: "50%", transform: "translateX(-50%)",
+          background: "rgba(30,10,60,0.92)", color: "#fff",
+          padding: "10px 22px", borderRadius: "20px",
+          fontSize: "13px", fontWeight: "600",
+          whiteSpace: "nowrap", boxShadow: "0 4px 20px rgba(0,0,0,0.4)",
+          zIndex: 100, pointerEvents: "none",
+        }}>
+          ✓ {t.pdfDownloaded}
+        </div>
+      )}
     </div>
   );
 }
@@ -1004,7 +1072,7 @@ function buildInitialNodes(pattern) {
   return [{ intensity: 5 }, { intensity: 5 }];
 }
 function attachIds(nodes) {
-  return nodes.map((n, i) => ({ ...n, id: i, location: [], painTypes: [], memo: "" }));
+  return nodes.map((n, i) => ({ ...n, id: i, memo: "" }));
 }
 
 // ─── Date label helpers ───────────────────────────────────────
@@ -1063,142 +1131,6 @@ function nodeDateInfo(nodes, onset, lang = 'en') {
   });
 }
 
-// ─── Node Editor Modal ───────────────────────────────────────
-// subStep: 0=location, 1=type, 2=memo
-function NodeEditorModal({ node, nodeIndex, nodeCount, nodes, onSave, onClose, t }) {
-  const locationPrefilled = (node.location?.length ?? 0) > 0;
-  const [subStep, setSubStep] = useState(locationPrefilled ? 1 : 0);
-  const [data, setData] = useState({
-    location: node.location || [],
-    painTypes: node.painTypes || [],
-    intensity: node.intensity,
-    memo: node.memo || "",
-  });
-
-  // Find the most recent previous node that already has a location selected
-  const prevWithLocation = nodes
-    ? nodes.slice(0, nodeIndex).reverse().find(n => n.location?.length > 0)
-    : null;
-
-  const prevAreaLabel = prevWithLocation
-    ? (prevWithLocation.location.includes("unknown")
-        ? t.unknownArea
-        : prevWithLocation.location.map(k => t[k]).join(", "))
-    : null;
-
-  return (
-    <div style={{
-      position: "fixed", inset: 0, zIndex: 200,
-      backgroundColor: "rgba(0,0,0,0.45)",
-      display: "flex", alignItems: "flex-end",
-    }}>
-      <div
-        className="modal-slide-up"
-        style={{
-          width: "100%", maxHeight: "90vh",
-          backgroundColor: "#fff",
-          borderRadius: "20px 20px 0 0",
-          display: "flex", flexDirection: "column",
-          overflow: "hidden",
-        }}
-      >
-        <div style={{ display: "flex", justifyContent: "center", padding: "10px 0 4px" }}>
-          <div style={{ width: "36px", height: "4px", borderRadius: "2px", backgroundColor: "#DDD6FE" }} />
-        </div>
-        <div style={{ padding: "0 20px 8px", flexShrink: 0, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <span style={{ fontSize: "13px", fontWeight: "700", color: "#6B21A8" }}>
-            {t.nodeEditorTitle} {nodeCount > 1 ? `(${nodeIndex + 1}/${nodeCount})` : ""}
-          </span>
-          <button onClick={onClose} style={{ background: "none", border: "none", fontSize: "18px", cursor: "pointer", color: "#9CA3AF" }}>✕</button>
-        </div>
-
-        <div style={{ flex: 1, overflowY: "auto" }}>
-          {subStep === 0 && (
-            <>
-              {prevWithLocation && (
-                <div style={{ padding: "4px 16px 8px" }}>
-                  <button
-                    onClick={() => {
-                      setData(prev => ({ ...prev, location: prevWithLocation.location }));
-                      setSubStep(1);
-                    }}
-                    style={{
-                      width: "100%", padding: "10px 14px",
-                      borderRadius: "12px", border: "1.5px solid #DDD6FE",
-                      backgroundColor: "#F5F3FF", cursor: "pointer",
-                      display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "2px",
-                      textAlign: "left",
-                    }}
-                  >
-                    <span style={{ fontSize: "13px", fontWeight: "700", color: "#6B21A8" }}>
-                      ✓ {t.sameAreaAsAbove}
-                    </span>
-                    <span style={{ fontSize: "11px", color: "#9CA3AF" }}>{prevAreaLabel}</span>
-                  </button>
-                </div>
-              )}
-              <div style={{ height: "460px" }}>
-                <HeadSelector
-                  onNext={() => setSubStep(1)}
-                  onBack={onClose}
-                  setPainData={setData}
-                  painData={data}
-                  t={t}
-                />
-              </div>
-            </>
-          )}
-          {subStep === 1 && (
-            <div style={{ height: "420px" }}>
-              <PainTypeSelector
-                onNext={() => setSubStep(2)}
-                onBack={() => setSubStep(0)}
-                setPainData={setData}
-                painData={data}
-                t={t}
-              />
-            </div>
-          )}
-          {subStep === 2 && (
-            <div style={{ padding: "16px 20px 20px", display: "flex", flexDirection: "column", gap: "12px" }}>
-              <div style={{ fontSize: "14px", fontWeight: "700", color: "#374151" }}>{t.memoLabel}</div>
-              <textarea
-                value={data.memo}
-                onChange={e => setData(prev => ({ ...prev, memo: e.target.value }))}
-                placeholder={t.memoPlaceholder}
-                rows={4}
-                style={{
-                  width: "100%", padding: "12px", fontSize: "14px",
-                  borderRadius: "12px", border: "1.5px solid #DDD6FE",
-                  resize: "none", outline: "none", boxSizing: "border-box",
-                  fontFamily: "inherit", color: "#374151",
-                }}
-              />
-              <button
-                onClick={() => onSave(data)}
-                style={{
-                  padding: "14px", fontSize: "15px", fontWeight: "700",
-                  backgroundColor: "#6B21A8", color: "#fff", border: "none",
-                  borderRadius: "12px", cursor: "pointer",
-                  boxShadow: "0 4px 14px rgba(107,33,168,0.35)",
-                }}
-              >
-                {t.done}
-              </button>
-              <button
-                onClick={() => setSubStep(1)}
-                style={{ background: "none", border: "none", color: "#9CA3AF", fontSize: "13px", cursor: "pointer" }}
-              >
-                {t.back}
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
-
 // ─── Timeline Editor (Step 20) ───────────────────────────────
 const SVG_W = 340, SVG_H = 200, PAD_L = 32, PAD_R = 16, PAD_T = 16, PAD_B = 36;
 
@@ -1206,7 +1138,6 @@ function TimelineEditor({ onNext, onBack, timelineEvents, setTimelineEvents, ses
   const [nodes, setNodes] = useState(() =>
     timelineEvents.length > 0 ? timelineEvents : attachIds(buildInitialNodes("worse"))
   );
-  const [editingIdx, setEditingIdx] = useState(null);
   const [dragListIdx, setDragListIdx] = useState(null);
   const svgRef = useRef(null);
 
@@ -1252,7 +1183,6 @@ function TimelineEditor({ onNext, onBack, timelineEvents, setTimelineEvents, ses
       window.removeEventListener("mouseup", onUp);
       window.removeEventListener("touchmove", onMove);
       window.removeEventListener("touchend", onUp);
-      if (!moved) setEditingIdx(idx);
     };
     window.addEventListener("mousemove", onMove);
     window.addEventListener("mouseup", onUp);
@@ -1264,7 +1194,7 @@ function TimelineEditor({ onNext, onBack, timelineEvents, setTimelineEvents, ses
     if (nodes.length >= 5) return;
     const mid = Math.floor(nodes.length / 2);
     const avgI = Math.round((nodes[mid - 1].intensity + nodes[mid].intensity) / 2);
-    const newNode = { id: Date.now(), intensity: avgI, location: [], painTypes: [], memo: "" };
+    const newNode = { id: Date.now(), intensity: avgI, memo: "" };
     const next = [...nodes];
     next.splice(mid, 0, newNode);
     setNodes(next.map((n, i) => ({ ...n, id: i })));
@@ -1273,11 +1203,6 @@ function TimelineEditor({ onNext, onBack, timelineEvents, setTimelineEvents, ses
   const removeNode = (idx) => {
     if (nodes.length <= 2) return;
     setNodes(prev => prev.filter((_, i) => i !== idx).map((n, i) => ({ ...n, id: i })));
-  };
-
-  const handleSaveNode = (data) => {
-    setNodes(prev => prev.map((n, i) => i === editingIdx ? { ...n, ...data, intensity: n.intensity } : n));
-    setEditingIdx(null);
   };
 
   // DnD list reorder
@@ -1290,7 +1215,6 @@ function TimelineEditor({ onNext, onBack, timelineEvents, setTimelineEvents, ses
     setDragListIdx(null);
   };
 
-  const allComplete = nodes.every(n => n.location?.length > 0 && n.painTypes?.length > 0);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
@@ -1301,7 +1225,7 @@ function TimelineEditor({ onNext, onBack, timelineEvents, setTimelineEvents, ses
         >
           {t.back}
         </button>
-        <ProgressBar step={2} total={5} label={t.stepArea} />
+        <ProgressBar step={4} total={5} label={t.stepIntensity} />
         <h2 style={{ margin: "0 0 4px", color: "#1F0A3C", fontSize: "20px", fontWeight: "700" }}>{t.timelineTitle}</h2>
         <p style={{ margin: 0, color: "#888", fontSize: "13px" }}>{t.timelineSub}</p>
       </div>
@@ -1340,20 +1264,15 @@ function TimelineEditor({ onNext, onBack, timelineEvents, setTimelineEvents, ses
             {nodes.map((node, i) => {
               const cx = xOf(i, nodes.length), cy = yOf(node.intensity);
               const col = nodeColor(node.intensity);
-              const done = node.location?.length > 0 && node.painTypes?.length > 0;
               return (
                 <g key={node.id} style={{ cursor: "ns-resize" }}>
-                  {/* Single circle handles both drag (move) and tap (open editor) */}
                   <circle cx={cx} cy={cy} r="14"
                     fill={col}
-                    stroke={done ? "#fff" : "rgba(255,255,255,0.4)"}
-                    strokeWidth={done ? "2.5" : "1.5"}
+                    stroke="#fff"
+                    strokeWidth="2.5"
                     onMouseDown={e => handleNodePointerDown(i, e)}
                     onTouchStart={e => handleNodePointerDown(i, e)}
                   />
-                  {!done && (
-                    <text x={cx} y={cy - 18} textAnchor="middle" fontSize="9" fill="#F97316">!</text>
-                  )}
                   <text x={cx} y={cy + 4} textAnchor="middle" fontSize="9" fontWeight="700" fill="#fff" style={{ pointerEvents: "none" }}>
                     {node.intensity}
                   </text>
@@ -1376,20 +1295,10 @@ function TimelineEditor({ onNext, onBack, timelineEvents, setTimelineEvents, ses
         </div>
       </div>
 
-      {!allComplete && (
-        <div style={{ padding: "6px 16px 0", fontSize: "11px", color: "#F97316", fontWeight: "600", textAlign: "center" }}>
-          ⚠ {t.timelineNodeLabel}
-        </div>
-      )}
-
       {/* Node list — draggable for reordering */}
       <div style={{ flex: 1, overflowY: "auto", padding: "8px 16px 0" }}>
         {nodes.map((node, i) => {
           const col = nodeColor(node.intensity);
-          const done = node.location?.length > 0 && node.painTypes?.length > 0;
-          const locLabel = node.location?.includes("unknown")
-            ? t.unknownArea
-            : (node.location?.length > 0 ? node.location.map(k => t[k]).join(", ") : null);
           return (
             <div
               key={node.id}
@@ -1398,13 +1307,12 @@ function TimelineEditor({ onNext, onBack, timelineEvents, setTimelineEvents, ses
               onDragOver={e => e.preventDefault()}
               onDrop={() => handleListDrop(i)}
               onDragEnd={() => setDragListIdx(null)}
-              onClick={() => setEditingIdx(i)}
               style={{
                 display: "flex", alignItems: "center", gap: "12px",
                 padding: "10px 14px", borderRadius: "12px",
-                border: `1.5px solid ${done ? "#E9D5FF" : "#FED7AA"}`,
-                backgroundColor: dragListIdx === i ? "#F5F3FF" : (done ? "#FDFBFF" : "#FFFBF7"),
-                marginBottom: "8px", cursor: "grab",
+                border: "1.5px solid #E9D5FF",
+                backgroundColor: dragListIdx === i ? "#F5F3FF" : "#FDFBFF",
+                marginBottom: "8px", cursor: "grab", userSelect: "none",
                 opacity: dragListIdx === i ? 0.5 : 1,
                 transition: "opacity 0.15s",
               }}
@@ -1419,10 +1327,6 @@ function TimelineEditor({ onNext, onBack, timelineEvents, setTimelineEvents, ses
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: "12px", fontWeight: "700", color: "#374151" }}>{dateInfos[i].full}</div>
-                <div style={{ fontSize: "11px", color: done ? "#9CA3AF" : "#F97316" }}>
-                  {done ? `${locLabel} · ${node.painTypes.map(pt => t[pt]).join(", ")}` : "⚠ Tap to fill details"}
-                </div>
-                {node.memo ? <div style={{ fontSize: "10px", color: "#9CA3AF", fontStyle: "italic" }}>"{node.memo}"</div> : null}
               </div>
               {nodes.length > 2 && (
                 <button
@@ -1432,7 +1336,7 @@ function TimelineEditor({ onNext, onBack, timelineEvents, setTimelineEvents, ses
                   ✕
                 </button>
               )}
-              <span style={{ fontSize: "16px", color: done ? "#A78BFA" : "#FBD38D" }}>{done ? "✓" : "›"}</span>
+              <span style={{ fontSize: "16px", color: "#A78BFA" }}>›</span>
             </div>
           );
         })}
@@ -1454,30 +1358,18 @@ function TimelineEditor({ onNext, onBack, timelineEvents, setTimelineEvents, ses
         )}
         <button
           onClick={() => { setTimelineEvents(nodes); onNext(); }}
-          disabled={!allComplete}
           style={{
             padding: "14px", fontSize: "16px", fontWeight: "600",
-            backgroundColor: allComplete ? "#6B21A8" : "#D1D5DB",
+            backgroundColor: "#6B21A8",
             color: "#fff", border: "none", borderRadius: "12px",
-            cursor: allComplete ? "pointer" : "not-allowed",
-            boxShadow: allComplete ? "0 4px 14px rgba(107,33,168,0.35)" : "none",
+            cursor: "pointer",
+            boxShadow: "0 4px 14px rgba(107,33,168,0.35)",
           }}
         >
           {t.next}
         </button>
       </div>
 
-      {editingIdx !== null && (
-        <NodeEditorModal
-          node={nodes[editingIdx]}
-          nodeIndex={editingIdx}
-          nodeCount={nodes.length}
-          nodes={nodes}
-          onSave={handleSaveNode}
-          onClose={() => setEditingIdx(null)}
-          t={t}
-        />
-      )}
     </div>
   );
 }
@@ -1558,18 +1450,31 @@ export default function App() {
   const [timelineEvents, setTimelineEvents] = useState([]);
 
   // null = not yet answered this session, true = agreed, false = declined
+  const [sessionNote, setSessionNote] = useState("");
+
+  // null = not yet answered this session, true = agreed, false = declined
   const [consentGiven, setConsentGiven] = useState(null);
   const [showDataConsent, setShowDataConsent] = useState(false);
 
   const t = translations[lang];
 
-  const goNext = () => setStep(p => p + 1);
+  const goNext = () => {
+    // After PainTypeSelector (step 4): non-same patterns jump to timeline instead of intensity slider
+    if (step === 4 && painPattern && painPattern !== "same") {
+      setTimelineEvents(attachIds(buildInitialNodes(painPattern)));
+      setStep(20);
+    } else {
+      setStep(p => p + 1);
+    }
+  };
 
   const goBack = () => {
     if (step === 2 && entries.length > 0) {
       setStep(6);
+    } else if (step === 4) {
+      setStep(2); // always back to BodySelector (head detail handled inside it)
     } else if (step === 20) {
-      setStep(2); // non-same patterns skip step 3, so back goes to BodySelector
+      setStep(4); // timeline back → PainTypeSelector
     } else if (step === 7 && painPattern && painPattern !== "same") {
       setStep(20);
     } else {
@@ -1586,16 +1491,10 @@ export default function App() {
   };
 
   // Only reached for "same" pattern (step 3 → step 4)
-  const handleHeadNext = () => setStep(4);
 
-  // BodySelector branches here: "same" → HeadSelector, non-same → TimelineEditor directly
+  // Head detail selection now happens inside BodySelector — always go to step 4
   const handleBodyNext = () => {
-    if (painPattern && painPattern !== "same") {
-      setTimelineEvents(attachIds(buildInitialNodes(painPattern)));
-      setStep(20);
-    } else {
-      setStep(3);
-    }
+    setStep(4);
   };
 
   const handleTimelineNext = () => setStep(7);
@@ -1631,6 +1530,7 @@ export default function App() {
     setCurrentEntry(emptyEntry());
     setPainPattern(null);
     setTimelineEvents([]);
+    setSessionNote("");
     setConsentGiven(null);
   };
 
@@ -1638,8 +1538,8 @@ export default function App() {
     const isTimeline = painPattern && painPattern !== "same" && timelineEvents.length > 0;
     const sessionEntries = isTimeline
       ? timelineEvents.map(e => ({
-          location: e.location || [],
-          painTypes: e.painTypes || [],
+          location: currentEntry.location || [],
+          painTypes: currentEntry.painTypes || [],
           intensity: e.intensity,
           onset: currentEntry.onset,
           memo: e.memo || "",
@@ -1653,6 +1553,7 @@ export default function App() {
         entries: sessionEntries,
         painPattern,
         timelineEvents: isTimeline ? timelineEvents : undefined,
+        note: sessionNote || undefined,
       };
       const existing = JSON.parse(localStorage.getItem("pain-app-sessions") || "[]");
       localStorage.setItem("pain-app-sessions", JSON.stringify([session, ...existing].slice(0, 20)));
@@ -1718,11 +1619,10 @@ export default function App() {
             onPatternChosen={handlePatternChosen} t={t}
           />
         )}
-        {step === 2 && <BodySelector onNext={handleBodyNext} onBack={goBack} t={t} />}
-        {step === 3 && (
-          <HeadSelector
-            onNext={handleHeadNext} onBack={goBack}
-            painData={currentEntry} setPainData={setCurrentEntry} t={t}
+        {step === 2 && (
+          <BodySelector
+            onNext={handleBodyNext} onBack={goBack}
+            setPainData={setCurrentEntry} t={t}
           />
         )}
         {step === 4 && (
@@ -1751,6 +1651,7 @@ export default function App() {
             painPattern={painPattern} timelineEvents={timelineEvents}
             sessionOnset={currentEntry.onset}
             lang={lang} t={t}
+            sessionNote={sessionNote} setSessionNote={setSessionNote}
           />
         )}
         {step === 20 && (
