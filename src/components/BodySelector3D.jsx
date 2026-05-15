@@ -14,8 +14,8 @@ const BODY_CAM = {
   target: new THREE.Vector3(0, 0, 0),
 };
 const HEAD_CAM = {
-  pos: new THREE.Vector3(0, 0.88, 0.52),
-  target: new THREE.Vector3(0, 0.88, 0),
+  pos: new THREE.Vector3(0, 0.75, 1.4),
+  target: new THREE.Vector3(0, 0.75, 0),
 };
 
 // ─── 8 body zone boxes ───────────────────────────────────────

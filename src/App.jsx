@@ -415,21 +415,24 @@ function PainTypeSelector({ onNext, onBack, painData, setPainData, t }) {
   );
 }
 
-// ─── Intensity Slider (Step 4) ───────────────────────────────
+// ─── Shared intensity helpers ────────────────────────────────
 const FACES = ["🙂", "😶", "😐", "😕", "😟", "😣", "😖", "😫", "😩", "😭"];
 
+function intensityColor(v) {
+  if (v <= 2) return "#FCD34D";
+  if (v <= 4) return "#FBBF24";
+  if (v <= 6) return "#F97316";
+  if (v <= 8) return "#EF4444";
+  return "#DC2626";
+}
+function intensityLabel(v, t) {
+  return v <= 3 ? t.mild : v <= 6 ? t.moderate : v <= 8 ? t.severe : t.verySevere;
+}
+
+// ─── Intensity Slider (Step 4) ───────────────────────────────
 function IntensitySlider({ onNext, onBack, painData, setPainData, t }) {
   const intensity = painData.intensity ?? 5;
-
-  const getColor = (v) => {
-    if (v <= 2) return "#FCD34D";
-    if (v <= 4) return "#FBBF24";
-    if (v <= 6) return "#F97316";
-    if (v <= 8) return "#EF4444";
-    return "#DC2626";
-  };
-  const getLabel = (v) => v <= 3 ? t.mild : v <= 6 ? t.moderate : v <= 8 ? t.severe : t.verySevere;
-  const color = getColor(intensity);
+  const color = intensityColor(intensity);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
@@ -456,7 +459,7 @@ function IntensitySlider({ onNext, onBack, painData, setPainData, t }) {
             {intensity}
           </div>
           <div style={{ fontSize: "18px", fontWeight: "700", color, marginTop: "6px", transition: "color 0.25s" }}>
-            {getLabel(intensity)}
+            {intensityLabel(intensity, t)}
           </div>
         </div>
 
@@ -474,11 +477,11 @@ function IntensitySlider({ onNext, onBack, painData, setPainData, t }) {
           {Array.from({ length: 10 }, (_, i) => (
             <div key={i} style={{
               width: "22px", height: "22px", borderRadius: "50%",
-              backgroundColor: getColor(i + 1),
+              backgroundColor: intensityColor(i + 1),
               opacity: i + 1 === intensity ? 1 : 0.22,
               transform: i + 1 === intensity ? "scale(1.25)" : "scale(1)",
               transition: "opacity 0.2s, transform 0.2s",
-              boxShadow: i + 1 === intensity ? `0 0 8px ${getColor(i + 1)}88` : "none",
+              boxShadow: i + 1 === intensity ? `0 0 8px ${intensityColor(i + 1)}88` : "none",
             }} />
           ))}
         </div>
@@ -1132,12 +1135,13 @@ function nodeDateInfo(nodes, onset, lang = 'en') {
 }
 
 // ─── Timeline Editor (Step 20) ───────────────────────────────
-const SVG_W = 340, SVG_H = 200, PAD_L = 32, PAD_R = 16, PAD_T = 16, PAD_B = 36;
+const SVG_W = 340, SVG_H = 150, PAD_L = 32, PAD_R = 16, PAD_T = 12, PAD_B = 30;
 
 function TimelineEditor({ onNext, onBack, timelineEvents, setTimelineEvents, sessionOnset, lang, t }) {
   const [nodes, setNodes] = useState(() =>
     timelineEvents.length > 0 ? timelineEvents : attachIds(buildInitialNodes("worse"))
   );
+  const [activeNodeIdx, setActiveNodeIdx] = useState(0);
   const [dragListIdx, setDragListIdx] = useState(null);
   const svgRef = useRef(null);
 
@@ -1165,6 +1169,7 @@ function TimelineEditor({ onNext, onBack, timelineEvents, setTimelineEvents, ses
   const handleNodePointerDown = (idx, e) => {
     e.stopPropagation();
     if (e.cancelable) e.preventDefault();
+    setActiveNodeIdx(idx);
     const svg = svgRef.current;
     if (!svg) return;
     const rect = svg.getBoundingClientRect();
@@ -1229,6 +1234,37 @@ function TimelineEditor({ onNext, onBack, timelineEvents, setTimelineEvents, ses
         <h2 style={{ margin: "0 0 4px", color: "#1F0A3C", fontSize: "20px", fontWeight: "700" }}>{t.timelineTitle}</h2>
         <p style={{ margin: 0, color: "#888", fontSize: "13px" }}>{t.timelineSub}</p>
       </div>
+
+      {/* Intensity display — mirrors IntensitySlider without the slider */}
+      {(() => {
+        const ai = nodes[activeNodeIdx]?.intensity ?? 5;
+        const ac = intensityColor(ai);
+        return (
+          <div style={{ padding: "0 20px 20px", flexShrink: 0, textAlign: "center" }}>
+            <div style={{ fontSize: "72px", lineHeight: 1, marginBottom: "2px" }}>
+              {FACES[ai - 1]}
+            </div>
+            <div style={{ fontSize: "16px", fontWeight: "700", color: ac, marginTop: "6px", marginBottom: "10px", transition: "color 0.2s" }}>
+              {intensityLabel(ai, t)}
+            </div>
+            <div style={{ display: "flex", justifyContent: "center", gap: "4px" }}>
+              {Array.from({ length: 10 }, (_, i) => {
+                const hit = i + 1 === ai;
+                return (
+                  <div key={i} style={{
+                    width: "20px", height: "20px", borderRadius: "50%",
+                    backgroundColor: intensityColor(i + 1),
+                    opacity: hit ? 1 : 0.22,
+                    transform: hit ? "scale(1.25)" : "scale(1)",
+                    transition: "opacity 0.15s, transform 0.15s",
+                    boxShadow: hit ? `0 0 8px ${intensityColor(i + 1)}88` : "none",
+                  }} />
+                );
+              })}
+            </div>
+          </div>
+        );
+      })()}
 
       {/* SVG Graph */}
       <div style={{ padding: "0 16px", flexShrink: 0 }}>
